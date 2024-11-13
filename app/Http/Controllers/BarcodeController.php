@@ -44,5 +44,16 @@ class       BarcodeController extends Controller
         'message' => 'Pemindaian barcode gagal, coba ulangi'
     ]);
 }
+public function show($id)
+{
+    // Ambil data siswa berdasarkan ID
+    $student = Student::findOrFail($id);
+
+    // Ambil status kehadiran terbaru dari siswa
+    $attendance = Attedances::where('student_id', $student->id)->latest()->first();
+
+    // Kirim data siswa dan kehadiran ke view
+    return view('show-student', compact('student', 'attendance'));
+}
 
 }

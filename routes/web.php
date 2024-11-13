@@ -23,6 +23,7 @@ Route::get('/', function () {
 
 
 Route::get('/students/{student}/generate-barcode', [BarcodeController::class, 'generateBarcode'])->name('filament.resources.students.generate-barcode');
+Route::get('/show-student/{id}',[BarcodeController::class, 'show'])->name('show-student');
 Route::post('/scan-barcode', [BarcodeController::class, 'validateBarcode']);
 Route::get('/scan-barcode', function () {
     return view('scan-barcode');

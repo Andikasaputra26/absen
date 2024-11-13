@@ -74,6 +74,7 @@
     .then(data => {
         if (data.status === 'success') {
             alert("Kehadiran berhasil diperbarui");
+            window.location.href = ``;
         } else {
             alert("Gagal memperbarui kehadiran: " + data.message);
         }

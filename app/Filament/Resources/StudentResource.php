@@ -48,7 +48,6 @@ class StudentResource extends Resource
                 Tables\Actions\Action::make('scan')
                 ->label('Barcode')
                 ->action(function (Student $record) {
-                    // Generate QR Code untuk siswa
                     return redirect()->route('filament.resources.students.generate-barcode', ['student' => $record->id]);
                 }),
             ])
