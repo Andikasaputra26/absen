@@ -4,65 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Scan Barcode</title>
-    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
-</head>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <title>QR Code Scanner</title>
+    </head>
 <body>
     <h1>Scan Barcode</h1>
-
-    <!-- Tempat untuk menampilkan hasil pemindaian -->
-    <div id="scanner-container" style="width: 100%; height: 300px;"></div>
+    <div id="reader" style="width:500px;"></div>
+    <div id="result"></div>
 
     <script>
-        // Inisialisasi Quagga untuk memindai barcode
-        document.addEventListener("DOMContentLoaded", function() {
-            Quagga.init({
-                inputStream: {
-                    type: "LiveStream",
-                    target: document.querySelector("#scanner-container"),
-                    constraints: {
-                        facingMode: "environment" // Menggunakan kamera belakang (untuk pemindaian barcode)
-                    }
-                },
-                decoder: {
-                    readers: ["code_128_reader", "ean_reader", "ean_13_reader", "upc_reader"] // Jenis barcode yang didukung
-                }
-            }, function(err) {
-                if (err) {
-                    console.log("Quagga initialization failed: ", err);
-                    return;
-                }
-                console.log("Quagga initialized successfully!");
-                Quagga.start();
-            });
+    function onScanSuccess(decodedText, decodedResult) {
+    console.log(`Code matched = ${decodedText}`, decodedResult);
+    alert(`QR Code berhasil dipindai: ${decodedText}`);
+    
+    fetch('/scan-barcode', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ barcode: decodedText })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert("Kehadiran berhasil diperbarui");
+        } else {
+            alert("Gagal memperbarui kehadiran: " + data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Terjadi kesalahan pada sistem. Silakan coba lagi.");
+    });
 
-            // Event listener untuk hasil pemindaian
-            Quagga.onDetected(function(result) {
-                const barcode = result.codeResult.code;
-                console.log("Detected Barcode: ", barcode);
+    html5QrcodeScanner.clear();
+}
 
-                // Kirim hasil barcode ke server untuk validasi
-                fetch('/validate-barcode', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ barcode: barcode })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert('Siswa ditemukan: ' + data.student.name);
-                    } else {
-                        alert('Siswa tidak ditemukan!');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
-        });
+function onScanFailure(error) {
+    console.warn(`Code scan error = ${error}`);
+}
+
+let html5QrcodeScanner = new Html5QrcodeScanner(
+    "reader", 
+    { 
+        fps: 10, 
+        qrbox: { width: 300, height: 300 }, 
+        aspectRatio: 1.0 
+    },
+    false
+);
+html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
     </script>
-</body>
+    
+    </body>
 </html>

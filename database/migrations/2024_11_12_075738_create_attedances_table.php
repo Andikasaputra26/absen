@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attedances', function (Blueprint $table) {
+        Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-        $table->foreignId('student_id')->constrained(); // Relasi ke siswa
-        $table->enum('status', ['present', 'absent'])->default('present');
-        $table->timestamp('attended_at')->useCurrent();
-        $table->timestamps();
+            $table->foreignId('student_id')->constrained()->onDelete('cascade'); // Menjaga integritas data
+            $table->enum('status', ['present', 'absent'])->default('present'); // Default status 'present'
+            $table->timestamp('attended_at')->useCurrent(); // Waktu kehadiran
+            $table->timestamps();
         });
     }
 
