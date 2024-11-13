@@ -39,7 +39,7 @@ class StudentResource extends Resource
         return $table
         ->columns([
             Tables\Columns\TextColumn::make('name')->searchable(),
-            Tables\Columns\TextColumn::make('barcode')->label('Barcode'),
+            // Tables\Columns\TextColumn::make('barcode')->label('Barcode'),
         ])
             ->filters([
                 //
